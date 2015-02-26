@@ -92,7 +92,7 @@ namespace GhostCoder
 
         public static bool IsPrintibaleKey(Keys k)
         {
-            
+            return _keyMap.Values.Any(v => v == k);
         }
     }
 }

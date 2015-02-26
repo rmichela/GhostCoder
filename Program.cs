@@ -10,6 +10,7 @@ namespace GhostCoder
     {
         private const int WH_KEYBOARD_LL = 13;
         private const int WM_KEYDOWN = 0x0100;
+        private const int INJECTED = 16;
         private static LowLevelKeyboardProc _proc = HookCallback;
         private static IntPtr _hookID = IntPtr.Zero;
 
@@ -20,8 +21,10 @@ namespace GhostCoder
             "Sustainable Tumblr Tonx salvia, cray direct trade cronut wolf."
         };
 
+        private static string _scriptText = "Art party listicle umami cliche, tilde master cleanse normcore artisan mlkshk tattooed sriracha Tumblr next level mixtape.";
+
         private static int _script = 0;
-        private static int _offset = 0; 
+        private static int _offset = 0;
 
 
         public static void Main()
@@ -41,31 +44,38 @@ namespace GhostCoder
             }
         }
 
-        private delegate IntPtr LowLevelKeyboardProc(
-            int nCode, IntPtr wParam, IntPtr lParam);
+        private delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
 
-        private static IntPtr HookCallback(
-            int nCode, IntPtr wParam, IntPtr lParam)
+        private static IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
         {
+            Console.WriteLine(wParam);
             if (nCode >= 0 && wParam == (IntPtr)WM_KEYDOWN)
             {
-                int vkCode = Marshal.ReadInt32(lParam);
-                Console.WriteLine((Keys)vkCode);
+                var hookStruct = (KBDLLHOOKSTRUCT)Marshal.PtrToStructure(lParam, typeof(KBDLLHOOKSTRUCT));
+                var vkKey = (Keys)hookStruct.vkCode;
 
-//                if (_script < _scripts.Count)
-//                {
-//                    if (_offset < _scripts[_script].Length)
-//                    {
-//                        SendKeys.Send(_scripts[_script][_offset].ToString());
-//                        _offset++;
-//                    }
-//                    else
-//                    {
-//                        _offset = 0;
-//                        _script++;
-//                    }
-//                    return new IntPtr(1);
-//                }
+                if (KeyCharMap.IsPrintibaleKey(vkKey))
+                {                  
+                    if (_offset < _scriptText.Length)
+                    {
+                        char offsetChar = _scriptText[_offset];
+                        Keys offsetKey = KeyCharMap.GetKey(offsetChar);
+
+                        if ((hookStruct.flags & INJECTED) != 0)
+                        {
+                            // Pass the key through                       
+                            _offset++;
+                            Console.WriteLine("{0}:Inject", _offset);
+                            return CallNextHookEx(_hookID, nCode, wParam, lParam);
+                        }
+                        else
+                        {
+                            Console.WriteLine("{0}:Send", _offset);
+                            SendKeys.Send(offsetChar.ToString());
+                            return new IntPtr(1);
+                        }
+                    }
+                }
             }
             return CallNextHookEx(_hookID, nCode, wParam, lParam);
         }
@@ -84,5 +94,17 @@ namespace GhostCoder
 
         [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         private static extern IntPtr GetModuleHandle(string lpModuleName);
+
+        //https://msdn.microsoft.com/en-us/library/windows/desktop/ms644967%28v=vs.85%29.aspx
+        [StructLayout(LayoutKind.Sequential)] 
+        public struct KBDLLHOOKSTRUCT
+        {
+            public int vkCode; 
+            public int scanCode; 
+            public int flags; 
+            public int time; 
+            public int dwExtraInfo; 
+
+        };
     }
 }
