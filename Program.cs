@@ -71,6 +71,8 @@ namespace GhostCoder
                         else
                         {
                             Console.WriteLine("{0}:Send", _offset);
+                            // ERROR: Craps out after 36 characters. Try using user32.dll sendinput
+                            // http://www.pinvoke.net/default.aspx/user32.sendinput
                             SendKeys.Send(offsetChar.ToString());
                             return new IntPtr(1);
                         }
