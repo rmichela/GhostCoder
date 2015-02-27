@@ -81,16 +81,6 @@ namespace GhostCoder
             {' ', Keys.Space},
         };
 
-        public static Keys GetKey(char c)
-        {
-            Keys k;
-            if (_keyMap.TryGetValue(c, out k))
-            {
-                return k;
-            }
-            throw new KeyNotFoundException(string.Format("Could not locate a keymap for '{0}'", c));
-        }
-
         public static bool IsPrintibaleKey(Keys k)
         {
             return _keyMap.Values.Any(v => v == k);
