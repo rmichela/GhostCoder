@@ -33,7 +33,7 @@ namespace GhostCoder
     {'C', Keys.C}, {'c', Keys.C},
     {'D', Keys.D}, {'d', Keys.D},
     {'E', Keys.E}, {'e', Keys.E},
-};";
+};".Replace("\n", String.Empty);
 
         private static int _script = 0;
         private static int _offset = 0;
@@ -69,9 +69,19 @@ namespace GhostCoder
                     var hookStruct = (KBDLLHOOKSTRUCT)Marshal.PtrToStructure(lParam, typeof(KBDLLHOOKSTRUCT));
                     var vkKey = (Keys)hookStruct.vkCode;
 
+                    // Protect against injected keys triggering more injected keys
                     if ((vkKey == Keys.Packet || (hookStruct.flags & INJECTED) != 0) && _lastWasRealKey)
                     {
                         _lastWasRealKey = false;
+                        return CallNextHookEx(_hookID, nCode, wParam, lParam);
+                    }
+
+                    // Allow backspace to do its job
+                    if (vkKey == Keys.Back)
+                    {
+                        _lastWasRealKey = true;
+                        if (offset > 0) _offset--;
+                        Console.WriteLine("BACKSPACE");
                         return CallNextHookEx(_hookID, nCode, wParam, lParam);
                     }
 
@@ -80,7 +90,7 @@ namespace GhostCoder
                         if (_offset < _scriptText.Length)
                         {
                             char offsetChar = _scriptText[_offset];
-                            Console.WriteLine("{0}:{1}", PrintChar(offsetChar), (hookStruct.flags & INJECTED) != 0);
+                            Console.WriteLine(PrintChar(offsetChar));
                             switch (offsetChar)
                             {
                                 case '\n':
