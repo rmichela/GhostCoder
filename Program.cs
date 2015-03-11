@@ -33,67 +33,6 @@ namespace GhostCoder
     {'C', Keys.C}, {'c', Keys.C},
     {'D', Keys.D}, {'d', Keys.D},
     {'E', Keys.E}, {'e', Keys.E},
-    {'F', Keys.F}, {'f', Keys.F},
-    {'G', Keys.G}, {'g', Keys.G},
-    {'H', Keys.H}, {'h', Keys.H},
-    {'I', Keys.I}, {'i', Keys.I},
-    {'J', Keys.J}, {'j', Keys.J},
-    {'K', Keys.K}, {'k', Keys.K},
-    {'L', Keys.L}, {'l', Keys.L},
-    {'M', Keys.M}, {'m', Keys.M},
-    {'N', Keys.N}, {'n', Keys.N},
-    {'O', Keys.O}, {'o', Keys.O},
-    {'P', Keys.P}, {'p', Keys.P},
-    {'Q', Keys.Q}, {'q', Keys.Q},
-    {'R', Keys.R}, {'r', Keys.R},
-    {'S', Keys.S}, {'s', Keys.S},
-    {'T', Keys.T}, {'t', Keys.T},
-    {'U', Keys.U}, {'u', Keys.U},
-    {'V', Keys.V}, {'v', Keys.V},
-    {'W', Keys.W}, {'w', Keys.W},
-    {'X', Keys.X}, {'x', Keys.X},
-    {'Y', Keys.Y}, {'y', Keys.Y},
-    {'Z', Keys.Z}, {'z', Keys.Z},
-
-    // Number Keys
-    {'1', Keys.D1}, {'!', Keys.D1},
-    {'2', Keys.D2}, {'@', Keys.D2},
-    {'3', Keys.D3}, {'#', Keys.D3},
-    {'4', Keys.D4}, {'$', Keys.D4},
-    {'5', Keys.D5}, {'%', Keys.D5},
-    {'6', Keys.D6}, {'^', Keys.D6},
-    {'7', Keys.D7}, {'&', Keys.D7},
-    {'8', Keys.D8}, {'*', Keys.D8},
-    {'9', Keys.D9}, {'(', Keys.D9},
-    {'0', Keys.D0}, {')', Keys.D0},
-
-    // Stand Alone Punctation
-    {',', Keys.Oemcomma}, 
-    {'<', Keys.Oemcomma},
-    {'.', Keys.OemPeriod},
-    {'>', Keys.OemPeriod},
-    {'/', Keys.OemQuestion},
-    {'?', Keys.OemQuestion},
-    {';', Keys.OemSemicolon},
-    {':', Keys.OemSemicolon},
-    {'\'', Keys.OemQuotes},
-    {'[', Keys.OemOpenBrackets},
-    {'{', Keys.OemOpenBrackets},
-    {']', Keys.OemCloseBrackets},
-    {'}', Keys.OemCloseBrackets},
-    {'\\', Keys.OemPipe},
-    {'|', Keys.OemPipe},
-    {'-', Keys.OemMinus},
-    {'_', Keys.OemMinus},
-    {'=', Keys.Oemplus},
-    {'+', Keys.Oemplus},
-    {'`', Keys.Oemtilde},
-    {'~', Keys.Oemtilde},
-
-    // Whitespace
-    {'\n', Keys.Return},
-    {'\t', Keys.Tab},
-    {' ', Keys.Space},
 };";
 
         private static int _script = 0;
@@ -119,6 +58,8 @@ namespace GhostCoder
 
         private delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
 
+        private static bool _lastWasRealKey;
+
         private static IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
         {
             try
@@ -128,20 +69,31 @@ namespace GhostCoder
                     var hookStruct = (KBDLLHOOKSTRUCT)Marshal.PtrToStructure(lParam, typeof(KBDLLHOOKSTRUCT));
                     var vkKey = (Keys)hookStruct.vkCode;
 
+                    if ((vkKey == Keys.Packet || (hookStruct.flags & INJECTED) != 0) && _lastWasRealKey)
+                    {
+                        _lastWasRealKey = false;
+                        return CallNextHookEx(_hookID, nCode, wParam, lParam);
+                    }
+
                     if (KeyCharMap.IsPrintibaleKey(vkKey))
                     {                  
                         if (_offset < _scriptText.Length)
                         {
                             char offsetChar = _scriptText[_offset];
+                            Console.WriteLine("{0}:{1}", PrintChar(offsetChar), (hookStruct.flags & INJECTED) != 0);
                             switch (offsetChar)
                             {
                                 case '\n':
+                                    break;
+                                case '\r':
+                                    _inputSimulator.Keyboard.KeyPress(VirtualKeyCode.RETURN);
                                     break;
                                 default:
                                     _inputSimulator.Keyboard.TextEntry(offsetChar);
                                     break;
                             }
-                            
+
+                            _lastWasRealKey = true;
                             _offset++;
                             return new IntPtr(1);
                         }
@@ -154,6 +106,21 @@ namespace GhostCoder
                 Console.WriteLine(e);
                 _offset++;
                 return CallNextHookEx(_hookID, nCode, wParam, lParam);
+            }
+        }
+
+        private static string PrintChar(char c)
+        {
+            switch (c)
+            {
+                case '\n':
+                    return "NEWLINE";
+                case '\r':
+                    return "CARIAGE_RETURN";
+                case '\t':
+                    return "TAB";
+                default:
+                    return c.ToString();
             }
         }
 
