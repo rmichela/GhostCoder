@@ -7,7 +7,7 @@ using System.Windows.Forms;
 using WindowsInput;
 using WindowsInput.Native;
 
-namespace GhostCoder
+namespace GhostCoder.Keyboard
 {
     public class Hooker : IDisposable
     {
@@ -64,7 +64,7 @@ namespace GhostCoder
             {
                 if (nCode >= 0 && wParam == (IntPtr)Native.WM_KEYDOWN)
                 {
-                    var hookStruct = (Native.KBDLLHOOKSTRUCT)Marshal.PtrToStructure(lParam, typeof(Native.KBDLLHOOKSTRUCT));
+                    var hookStruct = (Native.Kbdllhookstruct)Marshal.PtrToStructure(lParam, typeof(Native.Kbdllhookstruct));
                     var vkKey = (Keys)hookStruct.vkCode;
 
                     // Protect against injected keys triggering more injected keys

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using GhostCoder.Keyboard;
+using GhostCoder.Menu;
 
 namespace GhostCoder
 {
@@ -21,12 +23,17 @@ namespace GhostCoder
 
         public static void Main()
         {
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
 //            var deck = new Deck("deck");
-            var hooker = new Hooker(ScriptText);
+            using (var icon = new ProcessIcon())
+            using (var hooker = new Hooker(ScriptText))
+            {
+                icon.Display();
+                hooker.SetHook();
 
-            hooker.SetHook();
-            Application.Run();
-            hooker.ReleaseHook();
+                Application.Run();
+            }
         }
     }
 }

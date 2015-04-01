@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace GhostCoder
+namespace GhostCoder.Keyboard
 {
-    public class Native
+    public static class Native
     {
         public const int WH_KEYBOARD_LL = 13;
         public const int WM_KEYDOWN = 0x0100;
@@ -28,7 +28,7 @@ namespace GhostCoder
 
         //https://msdn.microsoft.com/en-us/library/windows/desktop/ms644967%28v=vs.85%29.aspx
         [StructLayout(LayoutKind.Sequential)]
-        public struct KBDLLHOOKSTRUCT
+        public struct Kbdllhookstruct
         {
             public int vkCode;
             public int scanCode;
