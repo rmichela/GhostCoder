@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using WindowsInput;
@@ -9,19 +11,37 @@ namespace GhostCoder
 {
     public class Hooker : IDisposable
     {
-        private readonly Deck _deck;
+        private readonly List<string> _deck;
         private IntPtr _hookId;
         private int _deckOffset;
         private int _scriptOffset;
         private bool _lastWasRealKey;
         private readonly InputSimulator _inputSimulator = new InputSimulator();
+        private Keys _scriptAdvanceKey = Keys.Tab;
         private bool _disposed;
 
-        public Hooker(Deck deck)
+        public Hooker(List<string> deck)
         {
             _deck = deck;
             _deckOffset = 0;
             _scriptOffset = 0;
+        }
+
+        public int DeckOffset
+        {
+            get { return _deckOffset; }
+            set
+            {
+                if (value < 0) throw new ArgumentException("DeckOffset cannot be negative");
+                if (value > _deck.Count) throw new ArgumentException("DeckOffset cannot be larger than deck size");
+                _deckOffset = value;
+            }
+        }
+
+        public Keys ScriptAdvanceKey
+        {
+            get { return _scriptAdvanceKey; }
+            set { _scriptAdvanceKey = value; }
         }
 
         public void SetHook()
@@ -63,7 +83,18 @@ namespace GhostCoder
                         return Native.CallNextHookEx(_hookId, nCode, wParam, lParam);
                     }
 
+                    // Advance the deck offset when the end of a script is reached and TAB is pressed
                     string scriptText = _deck[_deckOffset];
+                    if (_scriptOffset >= scriptText.Length)
+                    {
+                        if (vkKey == _scriptAdvanceKey && _deckOffset < _deck.Count-1)
+                        {
+                            _deckOffset++;
+                            _scriptOffset = 0;
+                        }
+                        return new IntPtr(1);
+                    }
+
                     if (KeyCharMap.IsPrintibaleKey(vkKey))
                     {
                         if (_scriptOffset < scriptText.Length)
@@ -109,7 +140,7 @@ namespace GhostCoder
                 case '\t':
                     return "TAB";
                 default:
-                    return c.ToString();
+                    return c.ToString(CultureInfo.InvariantCulture);
             }
         }
 

@@ -6,8 +6,6 @@ namespace GhostCoder
 {
     public class Deck : List<string>
     {
-        public bool IsEmpty { get; private set; }
- 
         public Deck(string directory)
         {
             try
@@ -18,7 +16,6 @@ namespace GhostCoder
                     var script = File.ReadAllText(file);
                     script = Sanitize(script);
                     Add(script);
-                    IsEmpty = false;
                 }
             }
             catch (IOException e)
