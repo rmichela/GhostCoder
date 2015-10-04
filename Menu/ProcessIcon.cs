@@ -11,16 +11,20 @@ namespace GhostCoder.Menu
     public class ProcessIcon : IDisposable
     {
         private readonly NotifyIcon _icon;
+        private DeckMenu _deckMenu;
 
-        public ProcessIcon()
+        public ProcessIcon(DeckMenu deckMenu)
         {
             _icon = new NotifyIcon();
+            _deckMenu = deckMenu;
         }
 
         public void Display()
         {
             _icon.Icon = Resources.GhostIcon;
             _icon.Text = "Ghost Coder";
+
+            _icon.ContextMenuStrip = _deckMenu.Create();
             _icon.Visible = true;
         }
 

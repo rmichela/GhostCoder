@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using GhostCoder.Keyboard;
 using GhostCoder.Menu;
+using System.IO;
 
 namespace GhostCoder
 {
@@ -25,8 +26,11 @@ namespace GhostCoder
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-//            var deck = new Deck("deck");
-            using (var icon = new ProcessIcon())
+
+            var deckManager = new DeckManager(new DirectoryInfo("Decks"));
+            var deckMenu = new DeckMenu(deckManager);
+
+            using (var icon = new ProcessIcon(deckMenu))
             using (var hooker = new Hooker(ScriptText))
             {
                 icon.Display();

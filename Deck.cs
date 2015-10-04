@@ -6,16 +6,23 @@ namespace GhostCoder
 {
     public class Deck : List<string>
     {
-        public Deck(string directory)
+        public string Name { get; private set; }
+
+        public Deck(DirectoryInfo directory)
         {
             try
             {
-                var files = Directory.GetFiles(directory);
-                foreach (string file in files)
+                Name = directory.Name;
+
+                var files = directory.GetFiles("*.txt");
+                foreach (FileInfo file in files)
                 {
-                    var script = File.ReadAllText(file);
-                    script = Sanitize(script);
-                    Add(script);
+                    using (var fs = file.OpenText())
+                    {
+                        var script = fs.ReadToEnd();
+                        script = Sanitize(script);
+                        Add(script);
+                    }                       
                 }
             }
             catch (IOException e)

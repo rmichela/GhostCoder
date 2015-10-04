@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{0E40FABE-3041-4DD6-AFB5-9E98B71C9658}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>GhostCoder</RootNamespace>
     <AssemblyName>GhostCoder</AssemblyName>
@@ -31,6 +31,12 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>GhostCoder.Program</StartupObject>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Images\ghost-icon.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -47,9 +53,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Deck.cs" />
+    <Compile Include="DeckManager.cs" />
     <Compile Include="Keyboard\Hooker.cs" />
     <Compile Include="Keyboard\KeyCharMap.cs" />
     <Compile Include="Keyboard\Native.cs" />
+    <Compile Include="Menu\DeckMenu.cs" />
     <Compile Include="Menu\ProcessIcon.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -73,6 +81,7 @@
   <ItemGroup>
     <Content Include="Images\ghost-icon.ico" />
     <Content Include="Images\ghost-icon.png" />
+    <None Include="Resources\README.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
