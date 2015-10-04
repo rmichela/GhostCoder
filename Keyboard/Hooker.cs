@@ -11,7 +11,8 @@ namespace GhostCoder.Keyboard
 {
     public class Hooker : IDisposable
     {
-        private readonly List<string> _deck;
+        private bool _enabled;
+        private List<string> _deck;
         private IntPtr _hookId;
         private int _deckOffset;
         private int _scriptOffset;
@@ -20,11 +21,33 @@ namespace GhostCoder.Keyboard
         private Keys _scriptAdvanceKey = Keys.Tab;
         private bool _disposed;
 
-        public Hooker(List<string> deck)
+        public void SetDeck(List<string> deck)
         {
+            if (deck == null)
+            {
+                deck = new List<string>();
+            }
+
             _deck = deck;
             _deckOffset = 0;
             _scriptOffset = 0;
+        }
+
+        public Boolean Enabled
+        {
+            get { return _enabled; }
+            set
+            {
+                if (!_enabled && value)
+                {
+                    SetHook();
+                }
+                if (_enabled && !value)
+                {
+                    ReleaseHook();
+                }
+                _enabled = value;
+            }
         }
 
         public int DeckOffset
@@ -44,7 +67,7 @@ namespace GhostCoder.Keyboard
             set { _scriptAdvanceKey = value; }
         }
 
-        public void SetHook()
+        private void SetHook()
         {
             using (Process curProcess = Process.GetCurrentProcess())
             using (ProcessModule curModule = curProcess.MainModule)
@@ -53,7 +76,7 @@ namespace GhostCoder.Keyboard
             }
         }
 
-        public void ReleaseHook()
+        private void ReleaseHook()
         {
             Native.UnhookWindowsHookEx(_hookId);
         }

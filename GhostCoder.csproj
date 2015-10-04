@@ -57,8 +57,12 @@
     <Compile Include="Keyboard\Hooker.cs" />
     <Compile Include="Keyboard\KeyCharMap.cs" />
     <Compile Include="Keyboard\Native.cs" />
-    <Compile Include="Menu\DeckMenu.cs" />
-    <Compile Include="Menu\ProcessIcon.cs" />
+    <Compile Include="Menu\DeckEnablementEventArgs.cs" />
+    <Compile Include="Menu\GcTrayMenu.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Menu\DeckSelectedEventArgs.cs" />
+    <Compile Include="Menu\GcTrayIcon.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -66,7 +70,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Test.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -79,6 +82,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Images\ghost-icon-x.ico" />
     <Content Include="Images\ghost-icon.ico" />
     <Content Include="Images\ghost-icon.png" />
     <None Include="Resources\README.txt" />

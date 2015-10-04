@@ -9,33 +9,23 @@ namespace GhostCoder
 {
     public class Program
     {
-
-        private static readonly List<string> ScriptText = new List<string>
-            {
-                "This is my first string\r",
-                "This is my second string\r",
-                @"private static Dictionary<char, Keys> _keyMap = new Dictionary<char, Keys>
-{
-    // Alphabet keys
-    {'A', Keys.A}, {'a', Keys.A}
-};".Replace("\n", String.Empty)
-            };
-
-
         public static void Main()
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
             var deckManager = new DeckManager(new DirectoryInfo("Decks"));
-            var deckMenu = new DeckMenu(deckManager);
+            var trayMenu = new GcTrayMenu(deckManager);
 
-            using (var icon = new ProcessIcon(deckMenu))
-            using (var hooker = new Hooker(ScriptText))
+            using (var trayIcon = new GcTrayIcon(trayMenu))
+            using (var hooker = new Hooker())
             {
-                icon.Display();
-                hooker.SetHook();
+                hooker.SetDeck(trayMenu.SelectedDeck);
 
+                trayIcon.DeckEnablementChanged += (o, e) => hooker.Enabled = e.Enabled;
+                trayMenu.DeckSelected += (o, e) => hooker.SetDeck(e.SelectedDeck);
+
+                trayIcon.Display();
                 Application.Run();
             }
         }

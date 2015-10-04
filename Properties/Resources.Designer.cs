@@ -71,6 +71,16 @@ namespace GhostCoder.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
+        internal static System.Drawing.Icon GhostIconX {
+            get {
+                object obj = ResourceManager.GetObject("GhostIconX", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Creating a new deck
         ///===================
         ///1. Create a new directory in this directory. The directory name is

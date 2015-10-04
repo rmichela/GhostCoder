@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace GhostCoder
 {
@@ -14,7 +15,7 @@ namespace GhostCoder
             {
                 Name = directory.Name;
 
-                var files = directory.GetFiles("*.txt");
+                var files = directory.GetFiles("*.txt").OrderBy(fi => fi.Name);
                 foreach (FileInfo file in files)
                 {
                     using (var fs = file.OpenText())

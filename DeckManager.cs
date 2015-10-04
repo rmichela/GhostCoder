@@ -29,7 +29,7 @@ namespace GhostCoder
         public void Refresh()
         {
             Decks = new List<Deck>();
-            foreach (var deckDir in BaseDirectory.GetDirectories().OrderBy(fi => fi.Name))
+            foreach (var deckDir in BaseDirectory.GetDirectories().OrderBy(di => di.Name))
             {
                 Decks.Add(new Deck(deckDir));
             }
