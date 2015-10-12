@@ -18,22 +18,38 @@ namespace GhostCoder.Menu
             _deckMenu = deckMenu;
         }
 
+        public bool Enabled
+        {
+            get { return _enabled; }
+            set
+            {
+                _enabled = value;
+                UpdateIcon();
+                OnDeckEnablementChanged();
+            }
+        }
+
         public void Display()
         {
-            _icon.Icon = _enabled ? Resources.GhostIcon : Resources.GhostIconX;
+            UpdateIcon();
             _icon.Text = "Ghost Coder";
             _icon.MouseClick += (o, e) =>
             {
                 if (e.Button == MouseButtons.Left)
                 {
                     _enabled = !_enabled;
-                    _icon.Icon = _enabled ? Resources.GhostIcon : Resources.GhostIconX;
+                    UpdateIcon();
                     OnDeckEnablementChanged();
                 }
             };
 
             _icon.ContextMenuStrip = _deckMenu;
             _icon.Visible = true;
+        }
+
+        private void UpdateIcon()
+        {
+            _icon.Icon = _enabled ? Resources.GhostIcon : Resources.GhostIconX;
         }
 
         private void OnDeckEnablementChanged()

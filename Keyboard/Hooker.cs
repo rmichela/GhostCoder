@@ -11,7 +11,9 @@ namespace GhostCoder.Keyboard
 {
     public class Hooker : IDisposable
     {
-        private bool _enabled;
+        public bool Enabled { get; set; }
+        public event EventHandler EnableTogglePressed;
+
         private List<string> _deck;
         private IntPtr _hookId;
         private int _deckOffset;
@@ -19,6 +21,7 @@ namespace GhostCoder.Keyboard
         private bool _lastWasRealKey;
         private readonly InputSimulator _inputSimulator = new InputSimulator();
         private Keys _scriptAdvanceKey = Keys.Tab;
+        private Keys _enableToggleKey = Keys.Pause;
         private bool _disposed;
 
         public void SetDeck(List<string> deck)
@@ -31,23 +34,8 @@ namespace GhostCoder.Keyboard
             _deck = deck;
             _deckOffset = 0;
             _scriptOffset = 0;
-        }
 
-        public Boolean Enabled
-        {
-            get { return _enabled; }
-            set
-            {
-                if (!_enabled && value)
-                {
-                    SetHook();
-                }
-                if (_enabled && !value)
-                {
-                    ReleaseHook();
-                }
-                _enabled = value;
-            }
+            SetHook();
         }
 
         public int DeckOffset
@@ -67,6 +55,12 @@ namespace GhostCoder.Keyboard
             set { _scriptAdvanceKey = value; }
         }
 
+        public Keys EnableToggleKey
+        {
+            get { return _enableToggleKey; }
+            set { _enableToggleKey = value; }
+        }
+
         private void SetHook()
         {
             using (Process curProcess = Process.GetCurrentProcess())
@@ -83,6 +77,18 @@ namespace GhostCoder.Keyboard
 
         private IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
         {
+            if (Enabled)
+            {
+                return HookCallbackEnabled(nCode, wParam, lParam);
+            }
+            else
+            {
+                return HookCallbackDisabled(nCode, wParam, lParam);
+            }
+        }
+
+        private IntPtr HookCallbackEnabled(int nCode, IntPtr wParam, IntPtr lParam)
+        {
             try
             {
                 if (nCode >= 0 && wParam == (IntPtr)Native.WM_KEYDOWN)
@@ -94,6 +100,14 @@ namespace GhostCoder.Keyboard
                     if ((vkKey == Keys.Packet || (hookStruct.flags & Native.INJECTED) != 0) && _lastWasRealKey)
                     {
                         _lastWasRealKey = false;
+                        return Native.CallNextHookEx(_hookId, nCode, wParam, lParam);
+                    }
+
+                    // Handle enable toggle
+                    if (vkKey == _enableToggleKey)
+                    {
+                        OnEnableTogglePressed();
+                        Console.WriteLine("ENABLE_TOGGLE");
                         return Native.CallNextHookEx(_hookId, nCode, wParam, lParam);
                     }
 
@@ -110,7 +124,7 @@ namespace GhostCoder.Keyboard
                     string scriptText = _deck[_deckOffset];
                     if (_scriptOffset >= scriptText.Length)
                     {
-                        if (vkKey == _scriptAdvanceKey && _deckOffset < _deck.Count-1)
+                        if (vkKey == _scriptAdvanceKey && _deckOffset < _deck.Count - 1)
                         {
                             _deckOffset++;
                             _scriptOffset = 0;
@@ -152,6 +166,29 @@ namespace GhostCoder.Keyboard
             }
         }
 
+        private IntPtr HookCallbackDisabled(int nCode, IntPtr wParam, IntPtr lParam)
+        {
+            try
+            {
+                if (nCode >= 0 && wParam == (IntPtr)Native.WM_KEYDOWN)
+                {
+                    var hookStruct = (Native.Kbdllhookstruct)Marshal.PtrToStructure(lParam, typeof(Native.Kbdllhookstruct));
+                    var vkKey = (Keys)hookStruct.vkCode;
+
+                    if (vkKey == _enableToggleKey)
+                    {
+                        Console.WriteLine("ENABLE_TOGGLE");
+                        OnEnableTogglePressed();
+                    }
+                }
+                return Native.CallNextHookEx(_hookId, nCode, wParam, lParam);
+            }
+            catch (Exception)
+            {
+                return Native.CallNextHookEx(_hookId, nCode, wParam, lParam);
+            }
+        }
+
         private static string PrintChar(char c)
         {
             switch (c)
@@ -164,6 +201,15 @@ namespace GhostCoder.Keyboard
                     return "TAB";
                 default:
                     return c.ToString(CultureInfo.InvariantCulture);
+            }
+        }
+
+        private void OnEnableTogglePressed()
+        {
+            var e = EnableTogglePressed;
+            if (e != null)
+            {
+                e(this, EventArgs.Empty);
             }
         }
 

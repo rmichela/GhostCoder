@@ -20,6 +20,8 @@ namespace GhostCoder
             using (var trayIcon = new GcTrayIcon(trayMenu))
             using (var hooker = new Hooker())
             {
+                hooker.EnableTogglePressed += (o, e) => trayIcon.Enabled = !trayIcon.Enabled;
+
                 hooker.SetDeck(trayMenu.SelectedDeck);
 
                 trayIcon.DeckEnablementChanged += (o, e) => hooker.Enabled = e.Enabled;
