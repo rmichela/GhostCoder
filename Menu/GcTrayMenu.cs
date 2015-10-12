@@ -48,10 +48,10 @@ namespace GhostCoder.Menu
             {
                 Text = "Refresh decks"
             };
-            Click += (o, e) =>
+            item.Click += (o, e) =>
             {
                 _deckManager.Refresh();
-                SelectedDeck = _deckManager.Decks.FirstOrDefault(d => d.Name == SelectedDeck.Name);
+                SelectedDeck = FindSelectedDeck();
                 RefreshMenu();
                 OnDeckSelected();
             };
@@ -76,6 +76,20 @@ namespace GhostCoder.Menu
             item.Image = Resources.Exit;
             item.Click += (o, e) => Application.Exit();
             Items.Add(item);
+        }
+
+        private Deck FindSelectedDeck()
+        {
+            if (SelectedDeck == null)
+            {
+                return _deckManager.Decks.FirstOrDefault();
+            }
+            Deck found = _deckManager.Decks.FirstOrDefault(d => d.Name == SelectedDeck.Name);
+            if (found == null)
+            {
+                return _deckManager.Decks.FirstOrDefault();
+            }
+            return found;
         }
 
         private void OnDeckSelected()
