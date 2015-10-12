@@ -108,7 +108,7 @@ namespace GhostCoder.Keyboard
                     {
                         OnEnableTogglePressed();
                         Console.WriteLine("ENABLE_TOGGLE");
-                        return Native.CallNextHookEx(_hookId, nCode, wParam, lParam);
+                        return new IntPtr(1);
                     }
 
                     // Allow backspace to do its job
@@ -179,6 +179,7 @@ namespace GhostCoder.Keyboard
                     {
                         Console.WriteLine("ENABLE_TOGGLE");
                         OnEnableTogglePressed();
+                        return new IntPtr(1);
                     }
                 }
                 return Native.CallNextHookEx(_hookId, nCode, wParam, lParam);
