@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GhostCoder.Properties;
+using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows.Forms;
@@ -37,6 +38,7 @@ namespace GhostCoder.Menu
                     RefreshMenu();
                     OnDeckSelected();
                 };
+
                 Items.Add(item);
             }
 
@@ -53,12 +55,16 @@ namespace GhostCoder.Menu
                 RefreshMenu();
                 OnDeckSelected();
             };
+            item.DisplayStyle = ToolStripItemDisplayStyle.ImageAndText;
+            item.Image = Resources.Refresh;
             Items.Add(item);
 
             item = new ToolStripMenuItem
             {
                 Text = "Edit decks..."
             };
+            item.DisplayStyle = ToolStripItemDisplayStyle.ImageAndText;
+            item.Image = Resources.Edit;
             item.Click += (o, e) => Process.Start("Explorer.exe", _deckManager.BaseDirectory.FullName);
             Items.Add(item);
 
@@ -66,6 +72,8 @@ namespace GhostCoder.Menu
             {
                 Text = "Exit"
             };
+            item.DisplayStyle = ToolStripItemDisplayStyle.ImageAndText;
+            item.Image = Resources.Exit;
             item.Click += (o, e) => Application.Exit();
             Items.Add(item);
         }
