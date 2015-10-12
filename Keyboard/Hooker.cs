@@ -23,6 +23,13 @@ namespace GhostCoder.Keyboard
         private Keys _scriptAdvanceKey = Keys.Tab;
         private Keys _enableToggleKey = Keys.Pause;
         private bool _disposed;
+        private Native.LowLevelKeyboardProc _hookCallback;
+
+
+        public Hooker()
+        {
+            _hookCallback = new Native.LowLevelKeyboardProc(HookCallback);
+        }
 
         public void SetDeck(List<string> deck)
         {
@@ -66,7 +73,7 @@ namespace GhostCoder.Keyboard
             using (Process curProcess = Process.GetCurrentProcess())
             using (ProcessModule curModule = curProcess.MainModule)
             {
-                _hookId = Native.SetWindowsHookEx(Native.WH_KEYBOARD_LL, HookCallback, Native.GetModuleHandle(curModule.ModuleName), 0);
+                _hookId = Native.SetWindowsHookEx(Native.WH_KEYBOARD_LL, _hookCallback, Native.GetModuleHandle(curModule.ModuleName), 0);
             }
         }
 
